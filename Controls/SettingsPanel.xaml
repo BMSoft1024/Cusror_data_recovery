@@ -1,0 +1,328 @@
+<UserControl x:Class="CursorBackup.Controls.SettingsPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:conv="clr-namespace:CursorBackup.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="800">
+    <UserControl.Resources>
+        <conv:BoolToBrushConverter x:Key="BoolToBrushConverter"/>
+        <conv:BoolToStatusConverter x:Key="BoolToStatusConverter"/>
+        <conv:BoolToColorConverter x:Key="BoolToColorConverter"/>
+        <conv:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+        <conv:ChatVisibilityConverter x:Key="ChatVisibilityConverter"/>
+        <conv:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </UserControl.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0" 
+                  Text="{Binding PanelTitle}" 
+                  FontSize="18" 
+                  FontWeight="Bold" 
+                  Foreground="#FFFFFF"
+                  Margin="0,0,0,10"/>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
+            <Button Content="{Binding LoadButtonText}" 
+                   Command="{Binding LoadCommand}"
+                   Padding="15,8"
+                   Background="#007ACC"
+                   Foreground="#FFFFFF"
+                   BorderThickness="0"
+                   Cursor="Hand"
+                   Margin="0,0,5,0"
+                   ToolTip="{Binding LoadButtonToolTip}"/>
+            <Button Content="Select All" 
+                   Command="{Binding SelectAllCommand}"
+                   Padding="15,8"
+                   Background="#3F3F46"
+                   Foreground="#FFFFFF"
+                   BorderThickness="0"
+                   Cursor="Hand"
+                   Margin="0,0,5,0"
+                   ToolTip="Select all available settings"/>
+            <Button Content="Deselect All" 
+                   Command="{Binding DeselectAllCommand}"
+                   Padding="15,8"
+                   Background="#3F3F46"
+                   Foreground="#FFFFFF"
+                   BorderThickness="0"
+                   Cursor="Hand"
+                   ToolTip="Deselect all"/>
+        </StackPanel>
+
+        <!-- Selected Backup Path (only for backup panel) -->
+        <TextBlock Grid.Row="2" 
+                  Text="{Binding SelectedBackupPath}" 
+                  Foreground="#CCCCCC"
+                  FontSize="10"
+                  Margin="0,0,0,10"
+                  TextWrapping="Wrap"
+                  Visibility="{Binding SelectedBackupPath, Converter={StaticResource StringToVisibilityConverter}}"/>
+
+        <!-- Progress Bar -->
+        <Border Grid.Row="3" 
+               Background="#2D2D30" 
+               Padding="10,5"
+               Margin="0,0,0,10"
+               Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibilityConverter}}">
+            <StackPanel Orientation="Vertical">
+                <TextBlock Text="{Binding ProgressMessage}" 
+                          Foreground="#FFFFFF" 
+                          FontSize="12"
+                          FontWeight="SemiBold"
+                          Margin="0,0,0,5"/>
+                <ProgressBar Value="{Binding ProgressValue}" 
+                          Maximum="100"
+                          Height="20"
+                          Background="#3F3F46"
+                          Foreground="#007ACC"
+                          BorderThickness="0"/>
+            </StackPanel>
+        </Border>
+
+        <ScrollViewer Grid.Row="4" VerticalScrollBarVisibility="Auto" Background="Transparent">
+            <ItemsControl ItemsSource="{Binding Settings}" Background="Transparent">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border BorderBrush="#3F3F46" 
+                               BorderThickness="0,0,0,1" 
+                               Padding="10,8"
+                               Background="{Binding IsAvailable, Converter={StaticResource BoolToBrushConverter}}"
+                               Visibility="{Binding Type, Converter={StaticResource ChatVisibilityConverter}}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <CheckBox Grid.Column="0" 
+                                         IsChecked="{Binding IsSelected}" 
+                                         IsEnabled="{Binding IsAvailable}"
+                                         Margin="0,0,10,0"
+                                         VerticalAlignment="Center"
+                                         Foreground="#FFFFFF"
+                                         ToolTip="{Binding Category}"/>
+                                
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="{Binding Name}" 
+                                              FontWeight="Bold"
+                                              FontSize="14"
+                                              Foreground="#FFFFFF"/>
+                                    <TextBlock Text="{Binding Description}" 
+                                              Foreground="#CCCCCC"
+                                              FontSize="11"
+                                              TextWrapping="Wrap"/>
+                                    <TextBlock Text="{Binding Category}" 
+                                              Foreground="#999999"
+                                              FontSize="10"
+                                              Margin="0,2,0,0"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding IsAvailable, Converter={StaticResource BoolToStatusConverter}}"
+                                              Foreground="{Binding IsAvailable, Converter={StaticResource BoolToColorConverter}}"
+                                              Margin="10,0,10,0"
+                                              VerticalAlignment="Center"/>
+                                    <Button Content="👁" 
+                                           Width="30"
+                                           Height="30"
+                                           Click="PreviewButton_Click"
+                                           Tag="{Binding}"
+                                           Background="#3F3F46"
+                                           Foreground="#FFFFFF"
+                                           BorderThickness="0"
+                                           Cursor="Hand"
+                                           ToolTip="Preview settings"
+                                           FontSize="14"
+                                           Padding="0"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- Chat Histories Section -->
+        <Expander x:Name="ChatHistoriesExpander"
+                 Grid.Row="5" 
+                 Header="Chat Histories (by Project)" 
+                 Margin="0,10,0,0"
+                 IsExpanded="False"
+                 Foreground="#FFFFFF"
+                 Background="Transparent"
+                 Expanded="ChatHistoriesExpander_Expanded"
+                 Collapsed="ChatHistoriesExpander_Collapsed">
+            <ScrollViewer MaxHeight="300" 
+                        VerticalScrollBarVisibility="Auto" 
+                        Background="Transparent"
+                        Padding="5,5,5,5">
+                <ItemsControl ItemsSource="{Binding Projects}" Background="Transparent">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Margin="0,3,0,3"
+                                   BorderBrush="#3F3F46"
+                                   BorderThickness="1"
+                                   Background="#2D2D30"
+                                   CornerRadius="3"
+                                   Padding="5">
+                                <Expander Foreground="#FFFFFF"
+                                         Background="Transparent">
+                                    <Expander.IsExpanded>
+                                        <Binding Path="IsExpanded"/>
+                                    </Expander.IsExpanded>
+                                    <Expander.Header>
+                                        <CheckBox Content="{Binding ProjectName}"
+                                                 IsChecked="{Binding IsSelected}"
+                                                 Foreground="#FFFFFF"
+                                                 Background="Transparent"
+                                                 BorderThickness="0"
+                                                 VerticalContentAlignment="Center"
+                                                 FontWeight="SemiBold"/>
+                                    </Expander.Header>
+                                    <ItemsControl ItemsSource="{Binding ChatHistories}" 
+                                                 Background="Transparent"
+                                                 Margin="15,5,0,5">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Margin="0,2,0,2"
+                                                       BorderBrush="#3F3F46"
+                                                       BorderThickness="0,0,0,1"
+                                                       Padding="5,3">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <CheckBox Grid.Column="0"
+                                                                 Content="{Binding ChatName}" 
+                                                                 IsChecked="{Binding IsSelected}"
+                                                                 IsEnabled="{Binding IsAvailable}"
+                                                                 Foreground="#CCCCCC"
+                                                                 FontSize="12"/>
+                                                        <Button Grid.Column="1"
+                                                               Content="👁" 
+                                                               Width="25"
+                                                               Height="25"
+                                                               Click="PreviewChatButton_Click"
+                                                               Tag="{Binding}"
+                                                               Background="#3F3F46"
+                                                               Foreground="#FFFFFF"
+                                                               BorderThickness="0"
+                                                               Cursor="Hand"
+                                                               ToolTip="Preview chat"
+                                                               FontSize="12"
+                                                               Padding="0"
+                                                               Margin="5,0,0,0"/>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Expander>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Expander>
+
+        <!-- Documentations Section -->
+        <Expander x:Name="DocumentationsExpander"
+                 Grid.Row="6" 
+                 Header="Documentations (by Group)" 
+                 Margin="0,10,0,0"
+                 IsExpanded="False"
+                 Foreground="#FFFFFF"
+                 Background="Transparent"
+                 Expanded="DocumentationsExpander_Expanded"
+                 Collapsed="DocumentationsExpander_Collapsed">
+            <ScrollViewer MaxHeight="300" 
+                        VerticalScrollBarVisibility="Auto" 
+                        Background="Transparent"
+                        Padding="5,5,5,5">
+                <ItemsControl ItemsSource="{Binding Documentations}" Background="Transparent">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Margin="0,3,0,3"
+                                   BorderBrush="#3F3F46"
+                                   BorderThickness="1"
+                                   Background="#2D2D30"
+                                   CornerRadius="3"
+                                   Padding="5">
+                                <Expander Foreground="#FFFFFF"
+                                         Background="Transparent">
+                                    <Expander.IsExpanded>
+                                        <Binding Path="IsExpanded"/>
+                                    </Expander.IsExpanded>
+                                    <Expander.Header>
+                                        <CheckBox Content="{Binding GroupName}"
+                                                 IsChecked="{Binding IsSelected}"
+                                                 Foreground="#FFFFFF"
+                                                 Background="Transparent"
+                                                 BorderThickness="0"
+                                                 VerticalContentAlignment="Center"
+                                                 FontWeight="SemiBold"/>
+                                    </Expander.Header>
+                                    <ItemsControl ItemsSource="{Binding Documentations}" 
+                                                 Background="Transparent"
+                                                 Margin="15,5,0,5">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Margin="0,2,0,2"
+                                                       BorderBrush="#3F3F46"
+                                                       BorderThickness="0,0,0,1"
+                                                       Padding="5,3">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <CheckBox Grid.Column="0"
+                                                                 Content="{Binding Name}" 
+                                                                 IsChecked="{Binding IsSelected}"
+                                                                 IsEnabled="{Binding IsAvailable}"
+                                                                 Foreground="#CCCCCC"
+                                                                 FontSize="12"/>
+                                                        <Button Grid.Column="1"
+                                                               Content="👁" 
+                                                               Width="25"
+                                                               Height="25"
+                                                               Click="PreviewButton_Click"
+                                                               Tag="{Binding}"
+                                                               Background="#3F3F46"
+                                                               Foreground="#FFFFFF"
+                                                               BorderThickness="0"
+                                                               Cursor="Hand"
+                                                               ToolTip="Preview documentation"
+                                                               FontSize="12"
+                                                               Padding="0"
+                                                               Margin="5,0,0,0"/>
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Expander>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Expander>
+    </Grid>
+</UserControl>
+
